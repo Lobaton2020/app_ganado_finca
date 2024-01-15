@@ -2,16 +2,16 @@ import 'package:app_ganado_finca/src/components/CardBovine.dart';
 import 'package:app_ganado_finca/src/models/Bovine.dart';
 import 'package:app_ganado_finca/src/routes/main.dart';
 import 'package:app_ganado_finca/src/services/BovineService.dart';
+import 'package:app_ganado_finca/src/services/main.dart';
 import 'package:flutter/material.dart';
 
-final _bovinesService = BovineService();
 class BovinesPage extends StatelessWidget{
   const BovinesPage({super.key});
   @override
   Widget build(BuildContext context){
 
     return FutureBuilder<List<Bovine>>(
-        future: _bovinesService.findAll(),
+        future: bovineService.findAll(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());

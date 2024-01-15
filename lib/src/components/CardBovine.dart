@@ -1,6 +1,7 @@
+import 'package:app_ganado_finca/src/components/DetailScreen.dart';
 import 'package:app_ganado_finca/src/models/Bovine.dart';
 import 'package:app_ganado_finca/src/routes/main.dart';
-import 'package:app_ganado_finca/src/utils/calcularTiempoTranscurrido.dart';
+import 'package:app_ganado_finca/src/shared/utils/calcularTiempoTranscurrido.dart';
 import 'package:flutter/material.dart';
 
 class CardBovine extends StatelessWidget {
@@ -23,18 +24,22 @@ class CardBovine extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ListTile(
-              leading: Container(
-                child: InkWell(
-                    child: Image.network(
-                    bovine.photo ?? defaultImage,
-                    fit: BoxFit.cover,
+            Center(
+              child: ListTile(
+                leading: SizedBox(
+                  width: 50,
+                  child: Center(
+                    child: Container(
+                      child: InkWell(
+                        child: cachedNetworkImage(bovine.photo ?? defaultImage),
+                        onTap: () {
+                          Navigator.of(context).pushNamed(detailScreen,
+                              arguments: bovine.photo ?? defaultImage);
+                        },
+                      ),
+                      // padding: EdgeInsets.only(top: 4, left: 0),
+                    ),
                   ),
-                  onTap: (){
-                    Navigator.of(context).pushNamed(detailScreen, arguments: defaultImage);
-                  },
-                ),
-                padding: EdgeInsets.only(top: 4, left: 0),
               ),
               title: InkWell(
                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -52,16 +57,20 @@ class CardBovine extends StatelessWidget {
                   const PopupMenuItem(value: 'action2', child: Text('Editar')),
                 ],
                 onSelected: (value) {
+                    //  Navigator.of(context).pushNamed(detailScreen,
+                    //       arguments: bovine.photo ?? defaultImage);
                 },
               ),
+            ),
             ),
             Container(
               padding: const EdgeInsets.fromLTRB(30,0,30,7),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(calcularTiempoTranscurrido(bovine.dateBirth, DateTime.now()),style: TextStyle( fontSize: 12 )),
-                  Text("$currentItem / $total", style: TextStyle( fontSize: 12 ),),
+                  Text(calcularTiempoTranscurrido(
+                      bovine.dateBirth, DateTime.now())),
+                  Text("$currentItem / $total"),
                 ],
               ),
             )

@@ -5,8 +5,8 @@ List<Bovine> bovineFromJson(String str) => List<Bovine>.from(json.decode(str).ma
 String bovineToJson(List<Bovine> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Bovine {
-    int id;
-    String createdAt;
+  int? id;
+  String? createdAt;
     String name;
     DateTime dateBirth;
     String color;
@@ -15,9 +15,8 @@ class Bovine {
     int? motherId;
     bool isMale;
     bool forIncrease;
-    dynamic adquisitionAmount;
-    int provenanceId;
-
+  dynamic? adquisitionAmount;
+  int provenanceId;
     Bovine({
         required this.id,
         required this.createdAt,

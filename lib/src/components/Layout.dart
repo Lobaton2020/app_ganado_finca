@@ -30,6 +30,7 @@ class _TabBarAppState extends State<TabBarApp>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.lightGreen,
         title: const Text('Finca App'),
         bottom: TabBar(
           controller: _tabController,
