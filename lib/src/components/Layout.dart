@@ -2,6 +2,7 @@ import 'package:app_ganado_finca/src/pages/BovinesOutputPage.dart';
 import 'package:app_ganado_finca/src/pages/BovinesPage.dart';
 import 'package:app_ganado_finca/src/pages/MainPage.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 class TabBarApp extends StatefulWidget {
   const TabBarApp({super.key});
@@ -51,8 +52,7 @@ class _TabBarAppState extends State<TabBarApp>
         controller: _tabController,
         children: const <Widget>[
           Center(
-            // child: MainPage(),
-            child: BovinesPage(),
+            child: MainPage(),
           ),
           Center(
             child: BovinesPage(),

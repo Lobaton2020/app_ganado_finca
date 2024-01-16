@@ -1,26 +1,35 @@
+
 import 'package:app_ganado_finca/src/services/main.dart';
+import 'package:app_ganado_finca/src/shared/components/AutocompleteSingleFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/DateFormField.dart';
+import 'package:app_ganado_finca/src/shared/components/ImageFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/SelectFormField.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 import 'package:app_ganado_finca/src/shared/utils/fromDateString.dart';
+import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:app_ganado_finca/src/shared/utils/snackBartMessage.dart';
 import 'package:flutter/material.dart';
 import 'package:app_ganado_finca/src/models/Bovine.dart';
+import 'package:image_picker/image_picker.dart';
 
+const provenanceId = {
+  "Comprado": "1",
+};
 class FormCreateBovine extends StatefulWidget {
   const FormCreateBovine({super.key, handleSubmitted});
-
   @override
   FormCreateBovineFormState createState() {
     return FormCreateBovineFormState();
   }
 }
-
 class FormCreateBovineFormState extends State<FormCreateBovine> {
   final _form = GlobalKey<FormState>();
   final newBovine = Map<String, dynamic>();
+  bool isLoading = false;
+  bool mustShowAmount = false;
   List<IOption> ownerOptions = [];
   List<IOption> provenanceOptions = [];
+  List<IOption> motherBovineOptions = [];
 
   String? _validationEmpty(String? value) {
     if (value == null || value.isEmpty) {
@@ -28,9 +37,12 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
     }
     return null;
   }
-
+  void onChangeImage(XFile image) {
+    newBovine["photo"] = image;
+  }
   void _onSubmitForm() async {
     if (_form.currentState!.validate()) {
+      setState(() => isLoading = true);
       _form.currentState!.save();
       newBovine["owner_id"] = int.parse(newBovine["owner_id"]);
       newBovine["provenance_id"] = int.parse(newBovine["provenance_id"]);
@@ -38,28 +50,62 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
       newBovine["for_increase"] = newBovine["for_increase"] == "1";
       newBovine["date_birth"] =
           fromDateStringToIsoString(newBovine["date_birth"]);
+      if (newBovine.containsKey("mother_id")) {
+        print("${newBovine["mother_id"]} **********");
+        newBovine["mother_id"] = int.parse(newBovine["mother_id"]);
+      }
+      if (newBovine["provenance_id"]!.toString() == provenanceId["Comprado"]) {
+        newBovine["adquisition_amount"] =
+            num.parse("${newBovine["adquisition_amount"]}");
 
+      } else {
+        newBovine.remove("adquisition_amount");
+      }
       try {
+        if (await bovineService.findOneByName(newBovine["name"] as String) !=
+            null) {
+          showSnackBar(context, "Error, ya existe un animal con ese nombre");
+          setState(() => isLoading = false);
+          return;
+        }
+        if (newBovine["photo"] != null) {
+          newBovine["photo"] =
+              await storageService.uploadBovinePhoto(newBovine["photo"]);
+        }
         await bovineService.create(Bovine.fromJson(newBovine));
         showSnackBar(context, "Proceso exitoso!");
-        _form.currentState!.reset();
+        try {
+          _form.currentState!.reset();
+        } catch (e) {}
+        newBovine.remove("photo");
+        setState(() => isLoading = false);
+        Navigator.pop(context);
+        tabObserver.add(1);
       } catch (err) {
         print(err);
-        showSnackBar(context, "Error, intenta de nuevo");
+        setState(() => isLoading = false);
+        showSnackBar(context, "F: $err");
       }
     }
   }
-
+  void _onChangeProvenance(String? provenanceIdParam) {
+    setState(() {
+      mustShowAmount = provenanceIdParam != null &&
+          provenanceIdParam == provenanceId["Comprado"];
+    });
+  }
   @override
   void initState() {
     super.initState();
     Future.wait([
       bovineService.findOwners(),
       bovineService.findProvenances(),
+      bovineService.findBovinesNames(),
     ]).then((values) {
       setState(() {
         ownerOptions = values[0];
         provenanceOptions = values[1];
+        motherBovineOptions = values[2];
       });
     }).catchError((error) {
       print("Error consulta owners or procenances: " + error);
@@ -98,6 +144,13 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
+            child: AutocompleteSingleFormField(
+                labelText: "Madre del animal",
+                onSelected: (option) => {newBovine["mother_id"] = option.value},
+                options: motherBovineOptions),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
             child: DateFormField(
               validator: _validationEmpty,
               initialDate: DateTime.now(),
@@ -129,12 +182,36 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
             child: SelectFormField(
                 validator: _validationEmpty,
                 labelText: "Proveniencia",
+                onChange: _onChangeProvenance,
                 onSaved: (value) => {newBovine["provenance_id"] = value ?? ''},
                 options: provenanceOptions),
           ),
+          mustShowAmount
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Monto de compra',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Este campo es requerido';
+                      }
+                      if (num.tryParse(value) == null) {
+                        return 'Este campo debe ser numerico';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) =>
+                        {newBovine["adquisition_amount"] = value ?? ''},
+                  ),
+                )
+              : Container(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: SelectFormField(
+                initialValue: "0",
                 validator: _validationEmpty,
                 labelText: "Es al aumento",
                 onSaved: (value) => {newBovine["for_increase"] = value ?? ''},
@@ -144,10 +221,23 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
                 ]),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: ElevatedButton(
-              onPressed: _onSubmitForm,
-              child: const Text('Enviar'),
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: ImageFormField(onChange: onChangeImage)),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _onSubmitForm,
+                    child: isLoading
+                        ? Container(
+                            padding: EdgeInsets.only(top: 10, bottom: 10),
+                            child: CircularProgressIndicator(strokeWidth: 4.0))
+                        : Text('Enviar información'),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
