@@ -1,19 +1,22 @@
-import 'package:app_ganado_finca/src/models/Bovine.dart';
+import 'package:app_ganado_finca/src/application/domain/interfaces/BovineRepository.dart';
+import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
+import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class BovineService{
-Future<List<Bovine>> findAll() async {
-  final data = await Supabase.instance.client
-      .from('bovines')
+class BovineSupabaseDao implements BovineRepository {
+  @override
+  Future<List<Bovine>> findAll() async {
+    final data = await Supabase.instance.client
+        .from('bovines')
         .select()
         .order('id', ascending: false);
 
     return data.map((item) => Bovine.fromJson(item)).toList();
   }
 
+  @override
   Future<Bovine?> findOneByName(String name) async {
-    print(name);
     final data = await Supabase.instance.client
         .from('bovines')
         .select()
@@ -24,6 +27,7 @@ Future<List<Bovine>> findAll() async {
     return Bovine.fromJson(data[0]);
   }
 
+  @override
   Future<List<IOption>> findProvenances() async {
     final data = await Supabase.instance.client.from('provenances').select();
     return data
@@ -32,6 +36,7 @@ Future<List<Bovine>> findAll() async {
         .toList();
   }
 
+  @override
   Future<List<IOption>> findBovinesNames() async {
     final data =
         await Supabase.instance.client.from('bovines').select('id, name');
@@ -41,6 +46,7 @@ Future<List<Bovine>> findAll() async {
         .toList();
   }
 
+  @override
   Future<List<IOption>> findOwners() async {
     final data = await Supabase.instance.client.from('owners').select();
     return data
@@ -49,6 +55,7 @@ Future<List<Bovine>> findAll() async {
         .toList();
   }
 
+  @override
   Future<void> create(Bovine bovine) async {
     final newBovine = bovine.toJson();
     newBovine.remove("id");

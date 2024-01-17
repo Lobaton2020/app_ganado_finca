@@ -1,11 +1,11 @@
-import 'package:app_ganado_finca/src/components/CardBovine.dart';
-import 'package:app_ganado_finca/src/components/Layout.dart';
-import 'package:app_ganado_finca/src/models/Bovine.dart';
-import 'package:app_ganado_finca/src/routes/main.dart';
-import 'package:app_ganado_finca/src/services/BovineService.dart';
-import 'package:app_ganado_finca/src/services/main.dart';
+import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
+import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
+import 'package:app_ganado_finca/src/presentation/components/CardBovine.dart';
+import 'package:app_ganado_finca/src/presentation/components/Layout.dart';
+import 'package:app_ganado_finca/src/presentation/routes/main.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:flutter/material.dart';
+
 class BovinesPage extends StatefulWidget {
   const BovinesPage({super.key});
 
@@ -43,21 +43,19 @@ class _BovinesPage extends State<BovinesPage> {
               itemCount: bovines.length,
               itemBuilder: ((context, index) {
                 return CardBovine(
-                  bovine: bovines[index],
-                  total: bovines.length,
-                  currentItem: index + 1
-                  );
+                    bovine: bovines[index],
+                    total: bovines.length,
+                    currentItem: index + 1);
               }),
             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: (){
-                 Navigator.pushNamed(context, bovineAddRoute);
+              onPressed: () {
+                Navigator.pushNamed(context, bovineAddRoute);
               },
               tooltip: 'Añadir bovino',
               child: const Icon(Icons.add),
             ),
           );
-        }
-      );
+        });
   }
 }

@@ -1,6 +1,7 @@
-import 'package:app_ganado_finca/src/routes/main.dart';
+import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
+import 'package:app_ganado_finca/src/presentation/routes/main.dart';
 import 'package:flutter/material.dart';
-import 'package:app_ganado_finca/src/components/Layout.dart';
+import 'package:app_ganado_finca/src/presentation/components/Layout.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
@@ -10,6 +11,8 @@ void main() async {
     url: dotenv.get('SUPABASE_URL'),
     anonKey: dotenv.get('SUPABASE_ANON_KEY'),
   );
+  print("Hola mundo");
+  initObserverOffline();
   runApp(const MyApp());
 }
 

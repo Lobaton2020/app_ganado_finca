@@ -1,5 +1,4 @@
-import 'package:app_ganado_finca/src/components/SimpleAppBar.dart';
-import 'package:app_ganado_finca/src/models/Bovine.dart';
+import 'package:app_ganado_finca/src/presentation/components/SimpleAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -17,6 +16,7 @@ Widget cachedNetworkImage(mediaUrl) {
     errorWidget: (context, url, error) => Icon(Icons.error),
   );
 }
+
 class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

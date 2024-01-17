@@ -1,6 +1,6 @@
-import 'package:app_ganado_finca/src/components/DetailScreen.dart';
-import 'package:app_ganado_finca/src/models/Bovine.dart';
-import 'package:app_ganado_finca/src/routes/main.dart';
+import 'package:app_ganado_finca/src/presentation/components/DetailScreen.dart';
+import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
+import 'package:app_ganado_finca/src/presentation/routes/main.dart';
 import 'package:app_ganado_finca/src/shared/utils/calcularTiempoTranscurrido.dart';
 import 'package:flutter/material.dart';
 
@@ -15,11 +15,12 @@ class CardBovine extends StatelessWidget {
     required this.total,
     required this.currentItem,
   });
-  final defaultImage = 'https://th.bing.com/th/id/R.ed7e0b7fcce4172ea922c52582f03422?rik=i0hXxqOVkXoQnA&pid=ImgRaw&r=0';
+  final defaultImage =
+      'https://th.bing.com/th/id/R.ed7e0b7fcce4172ea922c52582f03422?rik=i0hXxqOVkXoQnA&pid=ImgRaw&r=0';
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 2,right: 2),
+      padding: const EdgeInsets.only(left: 2, right: 2),
       child: Card(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -40,31 +41,33 @@ class CardBovine extends StatelessWidget {
                       // padding: EdgeInsets.only(top: 4, left: 0),
                     ),
                   ),
-              ),
-              title: InkWell(
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                onTap: () {
-                  Navigator.pushNamed(context, bovineDetailsRoute, arguments: bovine);
-                },
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(10,6,0,6),
-                  child: Text(bovine.name),
                 ),
-              ),
-              trailing: PopupMenuButton<String>(
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'action1', child: Text('Sacar')),
-                  const PopupMenuItem(value: 'action2', child: Text('Editar')),
-                ],
-                onSelected: (value) {
+                title: InkWell(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  onTap: () {
+                    Navigator.pushNamed(context, bovineDetailsRoute,
+                        arguments: bovine);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(10, 6, 0, 6),
+                    child: Text(bovine.name),
+                  ),
+                ),
+                trailing: PopupMenuButton<String>(
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'action1', child: Text('Sacar')),
+                    const PopupMenuItem(
+                        value: 'action2', child: Text('Editar')),
+                  ],
+                  onSelected: (value) {
                     //  Navigator.of(context).pushNamed(detailScreen,
                     //       arguments: bovine.photo ?? defaultImage);
-                },
+                  },
+                ),
               ),
             ),
-            ),
             Container(
-              padding: const EdgeInsets.fromLTRB(30,0,30,7),
+              padding: const EdgeInsets.fromLTRB(30, 0, 30, 7),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

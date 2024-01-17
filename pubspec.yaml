@@ -43,6 +43,8 @@ dependencies:
   cached_network_image: ^3.3.1
   image_picker: ^1.0.7
   rxdart: ^0.27.7
+  internet_connection_checker: ^1.0.0+1
+  sqflite: ^2.3.0
 
 dev_dependencies:
   flutter_test:

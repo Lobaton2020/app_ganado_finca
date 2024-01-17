@@ -1,5 +1,5 @@
-
-import 'package:app_ganado_finca/src/services/main.dart';
+import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
+import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/shared/components/AutocompleteSingleFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/DateFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/ImageFormField.dart';
@@ -9,12 +9,12 @@ import 'package:app_ganado_finca/src/shared/utils/fromDateString.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:app_ganado_finca/src/shared/utils/snackBartMessage.dart';
 import 'package:flutter/material.dart';
-import 'package:app_ganado_finca/src/models/Bovine.dart';
 import 'package:image_picker/image_picker.dart';
 
 const provenanceId = {
   "Comprado": "1",
 };
+
 class FormCreateBovine extends StatefulWidget {
   const FormCreateBovine({super.key, handleSubmitted});
   @override
@@ -22,6 +22,7 @@ class FormCreateBovine extends StatefulWidget {
     return FormCreateBovineFormState();
   }
 }
+
 class FormCreateBovineFormState extends State<FormCreateBovine> {
   final _form = GlobalKey<FormState>();
   final newBovine = Map<String, dynamic>();
@@ -37,9 +38,11 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
     }
     return null;
   }
+
   void onChangeImage(XFile image) {
     newBovine["photo"] = image;
   }
+
   void _onSubmitForm() async {
     if (_form.currentState!.validate()) {
       setState(() => isLoading = true);
@@ -57,7 +60,6 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
       if (newBovine["provenance_id"]!.toString() == provenanceId["Comprado"]) {
         newBovine["adquisition_amount"] =
             num.parse("${newBovine["adquisition_amount"]}");
-
       } else {
         newBovine.remove("adquisition_amount");
       }
@@ -88,12 +90,14 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
       }
     }
   }
+
   void _onChangeProvenance(String? provenanceIdParam) {
     setState(() {
       mustShowAmount = provenanceIdParam != null &&
           provenanceIdParam == provenanceId["Comprado"];
     });
   }
+
   @override
   void initState() {
     super.initState();

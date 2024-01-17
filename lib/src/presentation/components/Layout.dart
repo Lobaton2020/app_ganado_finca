@@ -1,6 +1,12 @@
-import 'package:app_ganado_finca/src/pages/BovinesOutputPage.dart';
-import 'package:app_ganado_finca/src/pages/BovinesPage.dart';
-import 'package:app_ganado_finca/src/pages/MainPage.dart';
+import 'dart:async';
+
+import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
+import 'package:app_ganado_finca/src/shared/utils/snackBartMessage.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+
+import 'package:app_ganado_finca/src/presentation/pages/BovinesOutputPage.dart';
+import 'package:app_ganado_finca/src/presentation/pages/BovinesPage.dart';
+import 'package:app_ganado_finca/src/presentation/pages/MainPage.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -11,14 +17,29 @@ class TabBarApp extends StatefulWidget {
   State<TabBarApp> createState() => _TabBarAppState();
 }
 
-class _TabBarAppState extends State<TabBarApp>
-    with TickerProviderStateMixin {
+class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    InternetConnectionChecker().onStatusChange.listen(
+      (InternetConnectionStatus status) {
+        switch (status) {
+          case InternetConnectionStatus.connected:
+            showSnackBar(context, "Conectado a internet");
+            print("Internet ON");
+            internetState.add(InternetState.connected);
+            break;
+          case InternetConnectionStatus.disconnected:
+            showSnackBar(context, "Se fue el internet");
+            print("Internet OFF");
+            internetState.add(InternetState.disconnected);
+            break;
+        }
+      },
+    );
   }
 
   @override
@@ -43,7 +64,7 @@ class _TabBarAppState extends State<TabBarApp>
               text: "Vacas",
             ),
             Tab(
-               text: "Salidas",
+              text: "Salidas",
             ),
           ],
         ),
