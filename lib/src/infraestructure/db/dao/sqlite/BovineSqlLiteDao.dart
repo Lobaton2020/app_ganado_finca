@@ -1,3 +1,4 @@
+
 import 'package:app_ganado_finca/src/application/domain/interfaces/BovineRepository.dart';
 import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/adapter/sqliteAdapter.dart';
@@ -16,7 +17,20 @@ class BovineSqlLiteDao implements BovineRepository {
       newItem["is_male"] = newItem["is_male"] == 1;
       return Bovine.fromJson(newItem);
     }).toList();
-    print(newData);
+    return newData;
+  }
+
+  Future<List<Bovine>> findAllForSynchronize() async {
+    final connection = await sqlLiteInstance;
+    final data = await connection.query('bovines',
+        where: 'for_synchronize = 1', orderBy: 'id DESC');
+    final newData = data.map((item) {
+      final newItem = Map<String, dynamic>.from(item);
+      newItem.remove('for_synchronize');
+      newItem["for_increase"] = item["for_increase"] == 1;
+      newItem["is_male"] = newItem["is_male"] == 1;
+      return Bovine.fromJson(newItem);
+    }).toList();
     return newData;
   }
 
@@ -66,6 +80,16 @@ class BovineSqlLiteDao implements BovineRepository {
   Future<void> create(Bovine bovine) async {
     final connection = await sqlLiteInstance;
     final newBovine = bovine.toJson();
+    newBovine["for_synchronize"] = true;
+    newBovine.remove("id");
+    newBovine.remove("created_at");
+    await connection.insert('bovines', newBovine);
+  }
+
+  Future<void> createSynchronize(Bovine bovine) async {
+    final connection = await sqlLiteInstance;
+    final newBovine = bovine.toJson();
+    newBovine["for_synchronize"] = 0;
     newBovine.remove("id");
     newBovine.remove("created_at");
     await connection.insert('bovines', newBovine);
@@ -94,5 +118,10 @@ class BovineSqlLiteDao implements BovineRepository {
       return null;
     }
     return Bovine.fromJson(data[0]);
+  }
+
+  Future<void> truncate() async {
+    final connection = await sqlLiteInstance;
+    await connection.delete('bovines', where: '1 = 1');
   }
 }

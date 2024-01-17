@@ -26,6 +26,7 @@ CREATE TABLE bovines (
     for_increase BOOLEAN NOT NULL DEFAULT false,
     adquisition_amount REAL,
     provenance_id INTEGER NOT NULL,
+    for_synchronize BOOLEAN NULL,
     FOREIGN KEY (owner_id) REFERENCES owners(id),
     FOREIGN KEY (provenance_id) REFERENCES provenances(id)
 );

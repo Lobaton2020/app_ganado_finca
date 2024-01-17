@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:app_ganado_finca/src/shared/utils/snackBartMessage.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -29,8 +30,13 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
         switch (status) {
           case InternetConnectionStatus.connected:
             showSnackBar(context, "Conectado a internet");
-            print("Internet ON");
             internetState.add(InternetState.connected);
+            synchronizeService.synchronizeBovines().then((value) {
+              if (value > 0) {
+                showSnackBar(
+                    context, "Actualizamos $value bovinos en la nube!");
+              }
+            });
             break;
           case InternetConnectionStatus.disconnected:
             showSnackBar(context, "Se fue el internet");

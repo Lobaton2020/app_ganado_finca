@@ -3,8 +3,10 @@ import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:app_ganado_finca/src/infraestructure/db/dao/sqlite/BovineSqlLiteDao.dart';
 
 class BovineSupabaseDao implements BovineRepository {
+  final _bovineSqlLiteDao = BovineSqlLiteDao();
   @override
   Future<List<Bovine>> findAll() async {
     final data = await Supabase.instance.client
@@ -61,5 +63,6 @@ class BovineSupabaseDao implements BovineRepository {
     newBovine.remove("id");
     newBovine.remove("created_at");
     await Supabase.instance.client.from('bovines').insert(newBovine);
+    await _bovineSqlLiteDao.create(bovine);
   }
 }

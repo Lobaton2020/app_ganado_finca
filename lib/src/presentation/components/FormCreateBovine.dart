@@ -54,7 +54,6 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
       newBovine["date_birth"] =
           fromDateStringToIsoString(newBovine["date_birth"]);
       if (newBovine.containsKey("mother_id")) {
-        print("${newBovine["mother_id"]} **********");
         newBovine["mother_id"] = int.parse(newBovine["mother_id"]);
       }
       if (newBovine["provenance_id"]!.toString() == provenanceId["Comprado"]) {
@@ -112,7 +111,7 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
         motherBovineOptions = values[2];
       });
     }).catchError((error) {
-      print("Error consulta owners or procenances: " + error);
+      print("Error consulta owners or provenances: " + error);
     });
   }
 

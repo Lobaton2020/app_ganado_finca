@@ -27,6 +27,15 @@ class _BovinesPage extends State<BovinesPage> {
         });
       }
     });
+
+     internetState.listen((value) {
+      if (value == InternetState.connected) {
+        print("RELOADING STATE, CONNECTED #######################");
+        setState(() {
+          listBovines = bovineService.findAll();
+        });
+      }
+    });
   }
 
   @override
