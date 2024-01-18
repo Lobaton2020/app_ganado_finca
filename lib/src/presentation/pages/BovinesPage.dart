@@ -14,16 +14,22 @@ class BovinesPage extends StatefulWidget {
 }
 
 class _BovinesPage extends State<BovinesPage> {
-  Future<List<Bovine>> listBovines = bovineService.findAll();
+  List<Bovine> listBovines = [];
   @override
   void initState() {
     super.initState();
-
+    bovineService.findAll().then((value) {
+      setState(() {
+        listBovines = value;
+      });
+    });
     tabObserver.stream.listen((event) {
       print("Event" + event.toString());
       if (AppTabs.bovines.index == event) {
-        setState(() {
-          listBovines = bovineService.findAll();
+        bovineService.findAll().then((value) {
+          setState(() {
+            listBovines = value;
+          });
         });
       }
     });
@@ -31,8 +37,10 @@ class _BovinesPage extends State<BovinesPage> {
      internetState.listen((value) {
       if (value == InternetState.connected) {
         print("RELOADING STATE, CONNECTED #######################");
-        setState(() {
-          listBovines = bovineService.findAll();
+        bovineService.findAll().then((value) {
+          setState(() {
+            listBovines = value;
+          });
         });
       }
     });
@@ -40,22 +48,26 @@ class _BovinesPage extends State<BovinesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Bovine>>(
-        future: listBovines,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final bovines = snapshot.data!;
+    // return const Center(child: CircularProgressIndicator());
           return Scaffold(
-            body: ListView.builder(
-              itemCount: bovines.length,
-              itemBuilder: ((context, index) {
-                return CardBovine(
-                    bovine: bovines[index],
-                    total: bovines.length,
-                    currentItem: index + 1);
-              }),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              child: ListTile(
+                  title: Text("Ganado actual"),
+                  leading: Icon(Icons.zoom_out),
+                  trailing: Text(
+                    "${listBovines.length.toString()} animales en total",
+                    style: TextStyle(fontSize: 15),
+                  )),
+              width: double.infinity,
+              height: 50,
+            ),
+            ...listBovines.map((bovine) =>
+                CardBovine(bovine: bovine, total: listBovines.length)),
+          ],
+        ),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
@@ -64,7 +76,6 @@ class _BovinesPage extends State<BovinesPage> {
               tooltip: 'Añadir bovino',
               child: const Icon(Icons.add),
             ),
-          );
-        });
+    );
   }
 }

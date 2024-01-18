@@ -7,20 +7,24 @@ import 'package:flutter/material.dart';
 class CardBovine extends StatelessWidget {
   final Bovine bovine;
   final int total;
-  final int currentItem;
 
   const CardBovine({
     super.key,
     required this.bovine,
     required this.total,
-    required this.currentItem,
   });
   final defaultImage =
       'https://th.bing.com/th/id/R.ed7e0b7fcce4172ea922c52582f03422?rik=i0hXxqOVkXoQnA&pid=ImgRaw&r=0';
+
+  String getCutName(String name, {max = 22}) {
+    if (name.length <= max) {
+      return name;
+    }
+    return "${name.substring(1, max)}...";
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 2, right: 2),
       child: Card(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -28,7 +32,7 @@ class CardBovine extends StatelessWidget {
             Center(
               child: ListTile(
                 leading: SizedBox(
-                  width: 50,
+                  width: 70,
                   child: Center(
                     child: Container(
                       child: InkWell(
@@ -48,35 +52,36 @@ class CardBovine extends StatelessWidget {
                     Navigator.pushNamed(context, bovineDetailsRoute,
                         arguments: bovine);
                   },
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(10, 6, 0, 6),
-                    child: Text(bovine.name),
-                  ),
-                ),
-                trailing: PopupMenuButton<String>(
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(value: 'action1', child: Text('Sacar')),
-                    const PopupMenuItem(
-                        value: 'action2', child: Text('Editar')),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(getCutName(bovine.name)),
+                      Container(
+                        child: Row(
+                          children: [
+                            Text(calcularTiempoTranscurrido(
+                                bovine.dateBirth, DateTime.now())),
+                            PopupMenuButton<String>(
+                                itemBuilder: (context) => [
+                                      const PopupMenuItem(
+                                          value: editBovine,
+                                          child: Text('Editar')),
+                                      const PopupMenuItem(
+                                          value: addBovineOutput,
+                                          child: Text('Sacar')),
                   ],
                   onSelected: (value) {
-                    //  Navigator.of(context).pushNamed(detailScreen,
-                    //       arguments: bovine.photo ?? defaultImage);
-                  },
+                                  Navigator.pushNamed(context, addBovineOutput,
+                                      arguments: bovine);
+                                })
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(30, 0, 30, 7),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(calcularTiempoTranscurrido(
-                      bovine.dateBirth, DateTime.now())),
-                  Text("$currentItem / $total"),
-                ],
-              ),
-            )
           ],
         ),
       ),

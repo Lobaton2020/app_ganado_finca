@@ -10,9 +10,9 @@ Widget cachedNetworkImage(mediaUrl) {
   }
   return CachedNetworkImage(
     imageUrl: mediaUrl,
-    fit: BoxFit.cover,
+    fit: BoxFit.fill,
     placeholder: (context, url) => Padding(
-      padding: EdgeInsets.all(5.0),
+      padding: EdgeInsets.all(0),
       child: CircularProgressIndicator(
         strokeWidth: 2.0,
       ),

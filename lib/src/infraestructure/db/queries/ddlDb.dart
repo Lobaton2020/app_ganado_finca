@@ -1,9 +1,9 @@
 const ddlTableOwners = '''
-CREATE TABLE owners (
-    id INTEGER PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    name TEXT NOT NULL
-);
+  CREATE TABLE owners (
+      id INTEGER PRIMARY KEY,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      name TEXT NOT NULL
+  );
 ''';
 const ddlTableProvenances = '''
 CREATE TABLE provenances (

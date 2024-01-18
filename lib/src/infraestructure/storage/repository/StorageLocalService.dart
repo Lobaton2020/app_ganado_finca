@@ -6,8 +6,12 @@ import 'package:path_provider/path_provider.dart';
 
 class StorageLocalService implements StorageRepository {
   Future<void> removeFile(String path) async {
-    File file = File(path);
-    await file.delete();
+    try {
+      File file = File(path);
+      await file.delete();
+    } catch (err) {
+      print("Error: $err");
+    }
   }
 
   Future<XFile> getLocalBovinePhoto(String path) async {

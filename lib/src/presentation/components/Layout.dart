@@ -64,10 +64,10 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
           controller: _tabController,
           tabs: const <Widget>[
             Tab(
-              text: "Principal",
+              text: "Resumen",
             ),
             Tab(
-              text: "Vacas",
+              text: "Ganado",
             ),
             Tab(
               text: "Salidas",
