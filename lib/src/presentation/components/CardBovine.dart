@@ -1,6 +1,7 @@
 import 'package:app_ganado_finca/src/presentation/components/DetailScreen.dart';
 import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
 import 'package:app_ganado_finca/src/presentation/routes/main.dart';
+import 'package:app_ganado_finca/src/shared/config.dart';
 import 'package:app_ganado_finca/src/shared/utils/calcularTiempoTranscurrido.dart';
 import 'package:flutter/material.dart';
 
@@ -13,8 +14,6 @@ class CardBovine extends StatelessWidget {
     required this.bovine,
     required this.total,
   });
-  final defaultImage =
-      'https://th.bing.com/th/id/R.ed7e0b7fcce4172ea922c52582f03422?rik=i0hXxqOVkXoQnA&pid=ImgRaw&r=0';
 
   String getCutName(String name, {max = 22}) {
     if (name.length <= max) {

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
 import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/presentation/components/CardBovine.dart';
@@ -15,20 +17,27 @@ class BovinesPage extends StatefulWidget {
 
 class _BovinesPage extends State<BovinesPage> {
   List<Bovine> listBovines = [];
+  bool loading = false;
   @override
   void initState() {
     super.initState();
+    setState(() {
+      loading = true;
+    });
     bovineService.findAll().then((value) {
       setState(() {
         listBovines = value;
+        loading = false;
       });
     });
     tabObserver.stream.listen((event) {
       print("Event" + event.toString());
       if (AppTabs.bovines.index == event) {
+        loading = true;
         bovineService.findAll().then((value) {
           setState(() {
             listBovines = value;
+            loading = false;
           });
         });
       }
@@ -36,9 +45,11 @@ class _BovinesPage extends State<BovinesPage> {
 
      internetState.listen((value) {
       if (value == InternetState.connected) {
+        loading = true;
         print("RELOADING STATE, CONNECTED #######################");
         bovineService.findAll().then((value) {
           setState(() {
+            loading = false;
             listBovines = value;
           });
         });
@@ -48,8 +59,13 @@ class _BovinesPage extends State<BovinesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // return const Center(child: CircularProgressIndicator());
-          return Scaffold(
+    if (loading) {
+      return CircularProgressIndicator();
+    }
+    if (listBovines.length == 0) {
+      return Center(child: Text("No hay informacion"));
+    }
+    return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
