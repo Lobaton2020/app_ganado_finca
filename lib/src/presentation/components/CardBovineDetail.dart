@@ -77,7 +77,7 @@ class _CardBovineDetailState extends State<CardBovineDetail> {
     final tiempo =
         calcularTiempoCompleto(widget.bovine.dateBirth, DateTime.now());
     return Scaffold(
-      appBar: buildSimpleAppBar(context, 'Detalle imagen'),
+      appBar: buildSimpleAppBar(context, 'Detalle bovino'),
       body: SingleChildScrollView(
         child: Container(
           child: Card(
