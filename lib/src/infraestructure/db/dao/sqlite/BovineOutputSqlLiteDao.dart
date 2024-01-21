@@ -20,9 +20,9 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
     final connection = await sqlLiteInstance;
     final newBovineOutput = bovineOutput.toJson();
     newBovineOutput["for_synchronize"] = 0;
-    newBovineOutput.remove("id");
+    newBovineOutput["created_at"] =
+        newBovineOutput["created_at"].toIso8601String();
     newBovineOutput.remove("photo");
-    newBovineOutput.remove("created_at");
     newBovineOutput.remove("name");
     await connection.insert('bovines_output', newBovineOutput);
   }
@@ -30,9 +30,20 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
   @override
   Future<List<BovineOutput>> findAll() async {
     final connection = await sqlLiteInstance;
-    final query = '''SELECT bovines_output.*, bovines.photo, bovines.name
-      FROM bovines_output
-      INNER JOIN bovines ON bovines_output.bovine_id = bovines.id ORDER BY bovines.id DESC;''';
+    final query = '''select
+        bovines_output.id,
+        bovines_output.created_at,
+        bovines_output.was_sold,
+        bovines_output.sold_amount,
+        bovines_output.description,
+        bovines_output.bovine_id,
+        bovines.photo,
+        bovines.name
+      from
+        bovines_output
+        join bovines on bovines_output.bovine_id = bovines.id
+      order by
+        bovines_output.bovine_id desc;''';
     final data = await connection.rawQuery(query);
     final newData = data.map((item) {
       final newItem = Map<String, dynamic>.from(item);
@@ -43,6 +54,24 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
     }).toList();
     return newData;
   }
+
+  @override
+  Future<List<BovineOutput>> findAllForSynchronize() async {
+    final connection = await sqlLiteInstance;
+    final query = '''SELECT bovines_output.*, bovines.photo, bovines.name
+      FROM bovines_output
+      INNER JOIN bovines ON bovines_output.bovine_id = bovines.id AND bovines.for_synchronize = 1 ORDER BY bovines.id DESC;''';
+    final data = await connection.rawQuery(query);
+    final newData = data.map((item) {
+      final newItem = Map<String, dynamic>.from(item);
+      newItem["sold_amount"] = int.tryParse(newItem["sold_amount"].toString());
+      newItem["was_sold"] = newItem["was_sold"] == 1;
+
+      return BovineOutput.fromJson(newItem);
+    }).toList();
+    return newData;
+  }
+
 
   @override
   Future<void> remove(int id) async {
@@ -84,5 +113,10 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
       return null;
     }
     return newData[0];
+  }
+
+  Future<void> truncate() async {
+    final connection = await sqlLiteInstance;
+    await connection.delete('bovines_output', where: '1 = 1');
   }
 }

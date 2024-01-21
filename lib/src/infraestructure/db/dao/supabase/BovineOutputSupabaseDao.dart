@@ -28,6 +28,11 @@ class BovineOutputSupabaseDao extends BovineOutputRepository {
 
     return data.map((item) => BovineOutput.fromJson(item)).toList();
   }
+
+  Future<List<BovineOutput>> findAllCrude() async {
+    final data = await Supabase.instance.client.from('bovines_output').select();
+    return data.map((item) => BovineOutput.fromJson(item)).toList();
+  }
 @override
   Future<Bovine?> findOneByName(String name) async {
         final data = await Supabase.instance.client

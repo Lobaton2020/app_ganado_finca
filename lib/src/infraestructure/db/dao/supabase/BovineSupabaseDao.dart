@@ -16,6 +16,10 @@ class BovineSupabaseDao implements BovineRepository {
 
     return data.map((item) => Bovine.fromJson(item)).toList();
   }
+  Future<List<Bovine>> findAllCrude() async {
+    final data = await Supabase.instance.client.from('bovines').select();
+    return data.map((item) => Bovine.fromJson(item)).toList();
+  }
 
   @override
   Future<Bovine?> findOneByName(String name) async {

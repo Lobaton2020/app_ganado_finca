@@ -56,12 +56,40 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
     _tabController.dispose();
     super.dispose();
   }
-
+  Future<void> sincronizeAction() async {
+    try {
+      showSnackBar(context, 'Sincronizando...');
+      await synchronizeService.pullBovinesData();
+      await synchronizeService.pullBovinesOutputData();
+      showSnackBar(context, 'Sincronizado exitoso!');
+    } catch (err) {
+      showSnackBar(context, "Err: $err");
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightGreen,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              switch (value) {
+                case 'Synchrozine':
+                  await sincronizeAction();
+                  break;
+                default:
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'Synchrozine',
+                child: Text('Reset data local'),
+              ),
+            ],
+            icon: const Icon(Icons.person),
+          ),
+        ],
         title: const Text('Finca App'),
         bottom: TabBar(
           controller: _tabController,
@@ -92,6 +120,7 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
           ),
         ],
       ),
+
     );
   }
 }

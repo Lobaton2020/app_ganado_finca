@@ -136,8 +136,8 @@ class BovineSqlLiteDao implements BovineRepository {
     final connection = await sqlLiteInstance;
     final newBovine = bovine.toJson();
     newBovine["for_synchronize"] = 0;
-    newBovine.remove("id");
-    newBovine.remove("created_at");
+    newBovine["created_at"] =
+        DateTime.parse(newBovine["created_at"]).toIso8601String();
     await connection.insert('bovines', newBovine);
   }
 

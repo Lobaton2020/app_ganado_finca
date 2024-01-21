@@ -7,7 +7,7 @@ String bovineOutputToJson(BovineOutput data) => json.encode(data.toJson());
 
 class BovineOutput {
   int? id;
-  DateTime? createdAt;
+  DateTime createdAt;
   bool wasSold;
   int? soldAmount;
   String? description;
@@ -27,9 +27,7 @@ class BovineOutput {
 
   factory BovineOutput.fromJson(Map<String, dynamic> json) => BovineOutput(
       id: json["id"],
-      createdAt: json["created_at"] != null
-          ? DateTime.parse(json["created_at"])
-          : null,
+      createdAt: DateTime.parse(json["created_at"]),
       wasSold: json["was_sold"],
       soldAmount: json["sold_amount"],
       description: json["description"],
