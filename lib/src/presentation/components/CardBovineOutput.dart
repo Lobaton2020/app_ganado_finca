@@ -5,6 +5,7 @@ import 'package:app_ganado_finca/src/shared/components/TextBordered.dart';
 import 'package:app_ganado_finca/src/shared/config.dart';
 import 'package:app_ganado_finca/src/shared/utils/calcularTiempoTranscurrido.dart';
 import 'package:app_ganado_finca/src/shared/utils/formatCurrency.dart';
+import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:flutter/material.dart';
 
 class CardBovineOutput extends StatelessWidget {
@@ -111,6 +112,27 @@ class CardBovineOutput extends StatelessWidget {
                                         );
                                       },
                                     );
+                                    return;
+                                  }
+                                  if (internetState.stream.value ==
+                                      InternetState.disconnected) {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('No estas conectado'),
+                                            content: Text(
+                                                'Para esta accion si necesitaras internet'),
+                                            actions: [
+                                              TextButton(
+                                                child: Text('Cerrar'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
                                     return;
                                   }
                                   showDialog(

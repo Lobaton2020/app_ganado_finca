@@ -26,16 +26,30 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     InternetConnectionChecker().onStatusChange.listen(
-      (InternetConnectionStatus status) {
+      (InternetConnectionStatus status) async {
         switch (status) {
           case InternetConnectionStatus.connected:
-            showSnackBar(context, "Conectado a internet");
+            showSnackBar(
+                context, "Conectado a internet, revisando sincronizacion..");
             internetState.add(InternetState.connected);
-            synchronizeService.synchronizeBovines().then((value) {
+
+            await synchronizeService.synchronizeBovines().then((value) {
               if (value > 0) {
                 showSnackBar(
                     context, "Actualizamos $value bovinos en la nube!");
               }
+            }).catchError((err) {
+              print("Error1: $err");
+              showSnackBar(context, "Error de sincronizacion, data corrupta!");
+            });
+            await synchronizeService.synchronizeOutputs().then((value) {
+              if (value > 0) {
+                showSnackBar(context,
+                    "Actualizamos $value salidas de bovinos en la nube!");
+              }
+            }).catchError((err) {
+              print("Error2: $err");
+              showSnackBar(context, "Error de sincronizacion, data corrupta!");
             });
             break;
           case InternetConnectionStatus.disconnected:

@@ -65,6 +65,12 @@ class _BovinesPage extends State<BovinesPage> {
     if (listBovines.length == 0) {
       return Center(child: Text("No hay informacion"));
     }
+    final List<Widget> listRender = listBovines.length == 0
+        ? [Center(child: Text("No hay informacion"))]
+        : listBovines
+            .map((bovine) =>
+                CardBovine(bovine: bovine, total: listBovines.length))
+            .toList();
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -80,8 +86,7 @@ class _BovinesPage extends State<BovinesPage> {
               width: double.infinity,
               height: 50,
             ),
-            ...listBovines.map((bovine) =>
-                CardBovine(bovine: bovine, total: listBovines.length)),
+            ...listRender
           ],
         ),
             ),

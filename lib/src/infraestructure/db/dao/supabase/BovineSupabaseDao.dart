@@ -69,6 +69,6 @@ class BovineSupabaseDao implements BovineRepository {
     newBovine.remove("id");
     newBovine.remove("created_at");
     await Supabase.instance.client.from('bovines').insert(newBovine);
-    await _bovineSqlLiteDao.createSynchronize(bovine);
+    await _bovineSqlLiteDao.create(bovine);
   }
 }

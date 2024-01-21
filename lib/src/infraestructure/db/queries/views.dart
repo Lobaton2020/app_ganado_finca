@@ -1,9 +1,9 @@
 final viewResumeAllMoney = '''
-    SELECT count(*) count, sum(bovines_output.sold_amount) as sum, 'SALIDA' as type
+    SELECT count(*) count, coalesce(sum(bovines_output.sold_amount),0) as sum, 'SALIDA' as type
         from bovines_output
         where bovines_output.sold_amount is not null
     UNION ALL
-    SELECT count(bovines.adquisition_amount) count, sum(bovines.adquisition_amount) as sum, 'ACTUAL' as type
+    SELECT count(bovines.adquisition_amount) count, coalesce(sum(bovines.adquisition_amount),0) as sum, 'ACTUAL' as type
         from bovines
         LEFT JOIN bovines_output ON bovines_output.bovine_id = bovines.id
         where bovines_output.bovine_id is null;

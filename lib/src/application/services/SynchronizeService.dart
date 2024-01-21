@@ -18,17 +18,21 @@ class SynchronizeService {
 
   Future<int> synchronizeOutputs() async {
     final data = await _bovineOutputSqlLiteDao.findAllForSynchronize();
-
+    if (data.length == 0) {
+      return data.length;
+    }
     await Future.wait(data.map((item) async {
       await _bovineOutputSupabaseDao.create(item);
     }));
-    await pullBovinesData();
+    await pullBovinesOutputData();
     return data.length;
   }
 
   Future<int> synchronizeBovines() async {
     final data = await _bovineSqlLiteDao.findAllForSynchronize();
-
+    if (data.length == 0) {
+      return data.length;
+    }
     await Future.wait(data.map((item) async {
       if (item.photo != null) {
         final xFile = await _storageLocalDao.getLocalBovinePhoto(item.photo);

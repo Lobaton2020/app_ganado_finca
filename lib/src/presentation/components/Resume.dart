@@ -68,8 +68,6 @@ class ResumeBovineFormState extends State<ResumeBovine> {
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 18),
       child: Container(
         padding: EdgeInsets.all(10),
-        child: Expanded(
-          flex: 1,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -83,7 +81,6 @@ class ResumeBovineFormState extends State<ResumeBovine> {
                 ],
               ),
             ],
-          ),
         ),
       ),
     );
@@ -113,8 +110,6 @@ class ResumeBovineFormState extends State<ResumeBovine> {
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 18),
       child: Container(
         padding: EdgeInsets.all(10),
-        child: Expanded(
-          flex: 1,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -128,8 +123,7 @@ class ResumeBovineFormState extends State<ResumeBovine> {
                   ),
                 ],
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

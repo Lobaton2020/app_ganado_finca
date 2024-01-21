@@ -27,7 +27,9 @@ class BovineOutput {
 
   factory BovineOutput.fromJson(Map<String, dynamic> json) => BovineOutput(
       id: json["id"],
-      createdAt: DateTime.parse(json["created_at"]),
+      createdAt: json["created_at"] != null
+          ? DateTime.parse(json["created_at"])
+          : DateTime.now(),
       wasSold: json["was_sold"],
       soldAmount: json["sold_amount"],
       description: json["description"],

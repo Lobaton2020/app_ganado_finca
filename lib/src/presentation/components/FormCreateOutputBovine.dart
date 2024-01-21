@@ -42,6 +42,7 @@ class _FormCreateOutputBovineFormState extends State<FormCreateOutputBovine> {
         newOutputBovine.remove("sold_amount");
       }
       try {
+        print("##################################");
         await bovineOutputService
             .create(BovineOutput.fromJson(newOutputBovine));
         showSnackBar(context, "Se creó la salida!");

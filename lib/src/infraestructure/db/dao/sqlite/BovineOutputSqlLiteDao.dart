@@ -6,7 +6,7 @@ import 'package:app_ganado_finca/src/infraestructure/db/adapter/sqliteAdapter.da
 class BovineOutputSqlLiteDao extends BovineOutputRepository {
   @override
   Future<void> create(BovineOutput bovineOutput) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final newBovineOutput = bovineOutput.toJson();
     newBovineOutput["for_synchronize"] = 1;
     newBovineOutput.remove("id");
@@ -17,7 +17,7 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
   }
 
   Future<void> createSynchronize(BovineOutput bovineOutput) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final newBovineOutput = bovineOutput.toJson();
     newBovineOutput["for_synchronize"] = 0;
     newBovineOutput["created_at"] =
@@ -29,7 +29,7 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
 
   @override
   Future<List<BovineOutput>> findAll() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final query = '''select
         bovines_output.id,
         bovines_output.created_at,
@@ -57,16 +57,29 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
 
   @override
   Future<List<BovineOutput>> findAllForSynchronize() async {
-    final connection = await sqlLiteInstance;
-    final query = '''SELECT bovines_output.*, bovines.photo, bovines.name
-      FROM bovines_output
-      INNER JOIN bovines ON bovines_output.bovine_id = bovines.id AND bovines.for_synchronize = 1 ORDER BY bovines.id DESC;''';
+    final connection = await DatabaseHelper.getInstance();
+    final query = '''select
+        bovines_output.id,
+        bovines_output.created_at,
+        bovines_output.was_sold,
+        bovines_output.sold_amount,
+        bovines_output.description,
+        bovines_output.bovine_id,
+        bovines.photo,
+        bovines.name
+      from
+        bovines_output
+        join bovines on bovines_output.bovine_id = bovines.id
+      where bovines_output.for_synchronize = 1
+      order by
+        bovines_output.bovine_id asc;''';
     final data = await connection.rawQuery(query);
     final newData = data.map((item) {
       final newItem = Map<String, dynamic>.from(item);
       newItem["sold_amount"] = int.tryParse(newItem["sold_amount"].toString());
       newItem["was_sold"] = newItem["was_sold"] == 1;
 
+      print(newItem);
       return BovineOutput.fromJson(newItem);
     }).toList();
     return newData;
@@ -75,13 +88,13 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
 
   @override
   Future<void> remove(int id) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     await connection.delete("bovines_output", where: 'id = ?', whereArgs: [id]);
   }
 
   @override
   Future<Bovine?> findOneByName(String name) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final data = await connection.rawQuery('''
       select
             bovines.id,
@@ -116,7 +129,7 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
   }
 
   Future<void> truncate() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     await connection.delete('bovines_output', where: '1 = 1');
   }
 }

@@ -16,7 +16,7 @@ class BovineOutputSupabaseDao extends BovineOutputRepository {
     await Supabase.instance.client
         .from('bovines_output')
         .insert(newBovineOutput);
-    await _bovineOutputSqlLiteDao.createSynchronize(bovineOutput);
+    await _bovineOutputSqlLiteDao.create(bovineOutput);
   }
 
   @override
@@ -47,5 +47,6 @@ class BovineOutputSupabaseDao extends BovineOutputRepository {
   @override
   Future<void> remove(int id) async {
     await Supabase.instance.client.from("bovines_output").delete().eq("id", id);
+    await _bovineOutputSqlLiteDao.remove(id);
   }
 }

@@ -7,7 +7,7 @@ import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 class ResumeSqlLiteDao implements ResumeRepository {
   @override
   Future<List<IOption>> totalGroupedByOwner() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final query = '''
         SELECT
           owners.name,
@@ -26,7 +26,7 @@ class ResumeSqlLiteDao implements ResumeRepository {
   }
 
   Future<int> _countBySex(String gender) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final query = '''SELECT COUNT(*) as total
       FROM bovines
       LEFT JOIN bovines_output ON bovines_output.bovine_id = bovines.id
@@ -47,7 +47,7 @@ class ResumeSqlLiteDao implements ResumeRepository {
 
   @override
   Future<int> totalSalidas() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final query = '''SELECT COUNT(*) as total
       FROM bovines
       INNER JOIN bovines_output ON bovines_output.bovine_id = bovines.id;''';
@@ -57,14 +57,15 @@ class ResumeSqlLiteDao implements ResumeRepository {
 
   @override
   Future<List<ResumeGeneric>> totalMoneyAll() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final results = await connection.rawQuery(viewResumeAllMoney);
+    print(results);
     return results.map((row) => ResumeGeneric.fromJson(row)).toList();
   }
 
   @override
   Future<List<ResumeGeneric>> totalMoneyByOwner() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final results = await connection.rawQuery(viewResumeByOwner);
     return results.map((row) => ResumeGeneric.fromJson(row)).toList();
   }

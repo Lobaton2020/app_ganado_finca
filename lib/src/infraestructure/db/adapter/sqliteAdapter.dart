@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/queries/ddlDb.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/queries/dmlDb.dart';
 import 'package:path_provider/path_provider.dart';
@@ -18,16 +19,24 @@ void onCreateLocalDB(Database db, int version) async {
   // Default inserts
   await db.execute(dmlTableProvenance);
   await db.execute(dmlTableOwners);
-  await db.execute(dmlTableBovines);
+  await synchronizeService.pullBovinesData();
+  await synchronizeService.pullBovinesData();
 }
 
-Future<Database> getDatabaseConnection() async {
-  Directory documentsDirectory = await getApplicationDocumentsDirectory();
-  String path = join(documentsDirectory.path, configDB["name"] as String);
-  return await openDatabase(path,
-      version: configDB["version"] as int,
-      onCreate: onCreateLocalDB,
-      readOnly: false);
+class DatabaseHelper {
+  static Database? _database;
+
+  static Future<Database> getInstance() async {
+    if (_database == null) {
+      String pathDb = await getDatabasesPath();
+      String path = join(pathDb, configDB["name"] as String);
+      _database = await openDatabase(
+        path,
+        version: configDB["version"] as int,
+        onCreate: onCreateLocalDB,
+      );
+    }
+    return _database!;
+  }
 }
 
-Future<Database> sqlLiteInstance = getDatabaseConnection();

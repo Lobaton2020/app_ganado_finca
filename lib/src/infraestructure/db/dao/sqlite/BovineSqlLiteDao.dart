@@ -10,7 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class BovineSqlLiteDao implements BovineRepository {
   @override
   Future<List<Bovine>> findAll() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final data = await connection.rawQuery(queryAllBovines);
     final newData = data.map((item) {
       final newItem = Map<String, dynamic>.from(item);
@@ -22,7 +22,7 @@ class BovineSqlLiteDao implements BovineRepository {
   }
 
   Future<List<Bovine>> findAllForSynchronize() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final data = await connection.rawQuery('''
       select
         bovines.id,
@@ -55,7 +55,7 @@ class BovineSqlLiteDao implements BovineRepository {
 
   @override
   Future<Bovine?> findOneByName(String name) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final data =
         await connection.rawQuery('''
       select
@@ -84,7 +84,7 @@ class BovineSqlLiteDao implements BovineRepository {
 
   @override
   Future<List<IOption>> findProvenances() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final data = await connection.query('provenances');
     return data
         .map((item) => IOption(
@@ -94,7 +94,7 @@ class BovineSqlLiteDao implements BovineRepository {
 
   @override
   Future<List<IOption>> findBovinesNames() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final data = await connection.rawQuery('''
       select
         bovines.id,
@@ -114,7 +114,7 @@ class BovineSqlLiteDao implements BovineRepository {
 
   @override
   Future<List<IOption>> findOwners() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final data = await connection.query('owners');
     return data
         .map((item) => IOption(
@@ -124,7 +124,7 @@ class BovineSqlLiteDao implements BovineRepository {
 
   @override
   Future<void> create(Bovine bovine) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final newBovine = bovine.toJson();
     newBovine["for_synchronize"] = 1;
     newBovine.remove("id");
@@ -133,7 +133,7 @@ class BovineSqlLiteDao implements BovineRepository {
   }
 
   Future<void> createSynchronize(Bovine bovine) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     final newBovine = bovine.toJson();
     newBovine["for_synchronize"] = 0;
     newBovine["created_at"] =
@@ -143,20 +143,20 @@ class BovineSqlLiteDao implements BovineRepository {
 
   @override
   Future<void> update(Bovine bovine) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     await connection.update('bovines', bovine.toJson(),
         where: 'id = ?', whereArgs: [bovine.id]);
   }
 
   @override
   Future<void> delete(Bovine bovine) async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     await connection.delete('bovines', where: 'id = ?', whereArgs: [bovine.id]);
   }
 
 
   Future<void> truncate() async {
-    final connection = await sqlLiteInstance;
+    final connection = await DatabaseHelper.getInstance();
     await connection.delete('bovines', where: '1 = 1');
   }
 }
