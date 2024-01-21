@@ -70,8 +70,8 @@ class CardBovine extends StatelessWidget {
                                           child: Text('Sacar')),
                   ],
                   onSelected: (value) {
-                                  Navigator.pushNamed(context, addBovineOutput,
-                                      arguments: bovine);
+                                  Navigator.of(context)
+                                      .pushNamed(value, arguments: bovine.id);
                                 })
                           ],
                         ),

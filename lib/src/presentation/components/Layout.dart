@@ -46,6 +46,9 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
         }
       },
     );
+    tabObserver.listen((value) {
+      _tabController.animateTo(value);
+    });
   }
 
   @override

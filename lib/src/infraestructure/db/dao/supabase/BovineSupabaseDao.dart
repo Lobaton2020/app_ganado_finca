@@ -10,7 +10,7 @@ class BovineSupabaseDao implements BovineRepository {
   @override
   Future<List<Bovine>> findAll() async {
     final data = await Supabase.instance.client
-        .from('bovines')
+        .from('bovines_left_outputs_view')
         .select()
         .order('id', ascending: false);
 
@@ -20,9 +20,9 @@ class BovineSupabaseDao implements BovineRepository {
   @override
   Future<Bovine?> findOneByName(String name) async {
     final data = await Supabase.instance.client
-        .from('bovines')
+        .from('bovines_left_outputs_view')
         .select()
-        .eq('name', '$name');
+        .like('name', '%$name%');
     if (data.length == 0) {
       return null;
     }
@@ -41,7 +41,9 @@ class BovineSupabaseDao implements BovineRepository {
   @override
   Future<List<IOption>> findBovinesNames() async {
     final data =
-        await Supabase.instance.client.from('bovines').select('id, name');
+        await Supabase.instance.client
+        .from('bovines_left_outputs_view')
+        .select('id, name');
     return data
         .map((item) =>
             IOption(label: item["name"], value: item["id"].toString()))
@@ -63,6 +65,6 @@ class BovineSupabaseDao implements BovineRepository {
     newBovine.remove("id");
     newBovine.remove("created_at");
     await Supabase.instance.client.from('bovines').insert(newBovine);
-    await _bovineSqlLiteDao.create(bovine);
+    await _bovineSqlLiteDao.createSynchronize(bovine);
   }
 }

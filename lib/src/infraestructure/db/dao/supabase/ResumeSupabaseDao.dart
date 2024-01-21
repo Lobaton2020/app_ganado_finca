@@ -1,3 +1,4 @@
+import 'package:app_ganado_finca/src/application/domain/dtos/ResumeGeneric.dart';
 import 'package:app_ganado_finca/src/application/domain/interfaces/ResumeRepository.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 import 'package:supabase/supabase.dart';
@@ -42,5 +43,20 @@ class ResumeSupabaseDao implements ResumeRepository {
         .select('id')
         .count();
     return results.count;
+  }
+
+  @override
+  Future<List<ResumeGeneric>> totalMoneyAll() async {
+    final results =
+        await Supabase.instance.client.from('resume_money_all_view').select();
+    return results.map((row) => ResumeGeneric.fromJson(row)).toList();
+  }
+
+  @override
+  Future<List<ResumeGeneric>> totalMoneyByOwner() async {
+    final results = await Supabase.instance.client
+        .from('resume_money_by_owner_view')
+        .select();
+    return results.map((row) => ResumeGeneric.fromJson(row)).toList();
   }
 }

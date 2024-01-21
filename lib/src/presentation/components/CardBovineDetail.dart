@@ -39,7 +39,6 @@ class _CardBovineDetailState extends State<CardBovineDetail> {
     ]).then((values) {
       final defaultMesage = "No tiene";
       setState(() {
-        print(values);
         try {
           owner = values[0]
               .where((x) => x.value.contains(widget.bovine.ownerId.toString()))

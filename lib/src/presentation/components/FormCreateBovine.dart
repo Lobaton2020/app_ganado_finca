@@ -50,6 +50,7 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
       newBovine["owner_id"] = int.parse(newBovine["owner_id"]);
       newBovine["provenance_id"] = int.parse(newBovine["provenance_id"]);
       newBovine["is_male"] = newBovine["is_male"] == "1";
+      newBovine["name"] = newBovine["name"]?.trim();
       newBovine["for_increase"] = newBovine["for_increase"] == "1";
       newBovine["date_birth"] =
           fromDateStringToIsoString(newBovine["date_birth"]);
@@ -148,7 +149,7 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: AutocompleteSingleFormField(
-                labelText: "Madre del animal",
+                labelText: "Madre del animal (Opcional)",
                 onSelected: (option) => {newBovine["mother_id"] = option.value},
                 options: motherBovineOptions),
           ),
@@ -225,7 +226,10 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
           ),
           Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
-              child: ImageFormField(onChange: onChangeImage)),
+              child: ImageFormField(
+                onChange: onChangeImage,
+                labelText: "Presiona para elegir una foto (Opcional)",
+              )),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Row(

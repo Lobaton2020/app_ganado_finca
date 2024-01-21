@@ -2,6 +2,7 @@
 import 'package:app_ganado_finca/src/application/domain/interfaces/BovineRepository.dart';
 import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/adapter/sqliteAdapter.dart';
+import 'package:app_ganado_finca/src/infraestructure/db/queries/views.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,7 +11,7 @@ class BovineSqlLiteDao implements BovineRepository {
   @override
   Future<List<Bovine>> findAll() async {
     final connection = await sqlLiteInstance;
-    final data = await connection.query('bovines', orderBy: 'id DESC');
+    final data = await connection.rawQuery(queryAllBovines);
     final newData = data.map((item) {
       final newItem = Map<String, dynamic>.from(item);
       newItem["for_increase"] = item["for_increase"] == 1;
@@ -22,8 +23,26 @@ class BovineSqlLiteDao implements BovineRepository {
 
   Future<List<Bovine>> findAllForSynchronize() async {
     final connection = await sqlLiteInstance;
-    final data = await connection.query('bovines',
-        where: 'for_synchronize = 1', orderBy: 'id DESC');
+    final data = await connection.rawQuery('''
+      select
+        bovines.id,
+        bovines.created_at,
+        bovines.name,
+        bovines.date_birth,
+        bovines.color,
+        bovines.owner_id,
+        bovines.photo,
+        bovines.mother_id,
+        bovines.is_male,
+        bovines.for_increase,
+        bovines.adquisition_amount,
+        bovines.provenance_id,
+        bovines_output.bovine_id
+      from
+        bovines
+        left join bovines_output on bovines_output.bovine_id = bovines.id
+      where
+        bovines_output.id is null AND bovines.for_synchronize = 1 ORDER BY bovines.id DESC;''');
     final newData = data.map((item) {
       final newItem = Map<String, dynamic>.from(item);
       newItem.remove('for_synchronize');
@@ -35,10 +54,27 @@ class BovineSqlLiteDao implements BovineRepository {
   }
 
   @override
-  Future<Bovine?> findBovineByName(String name) async {
+  Future<Bovine?> findOneByName(String name) async {
     final connection = await sqlLiteInstance;
     final data =
-        await connection.query('bovines', where: 'name = ?', whereArgs: [name]);
+        await connection.rawQuery('''
+      select
+            bovines.id,
+            bovines.name,
+            bovines.color,
+            bovines.owner_id,
+            bovines.photo,
+            bovines.mother_id,
+            bovines.is_male,
+            bovines.for_increase,
+            bovines.adquisition_amount,
+            bovines.provenance_id,
+            bovines_output.bovine_id
+          from
+            bovines
+            left join bovines_output on bovines_output.bovine_id = bovines.id
+          where
+            bovines_output.id is null AND name = ?;''', [name]);
 
     if (data.length == 0) {
       return null;
@@ -59,7 +95,17 @@ class BovineSqlLiteDao implements BovineRepository {
   @override
   Future<List<IOption>> findBovinesNames() async {
     final connection = await sqlLiteInstance;
-    final data = await connection.query('bovines', columns: ['id', 'name']);
+    final data = await connection.rawQuery('''
+      select
+        bovines.id,
+        bovines.name
+      from
+        bovines
+        left join bovines_output on bovines_output.bovine_id = bovines.id
+      where
+        bovines_output.id is null;
+''');
+    print(data);
     return data
         .map((item) => IOption(
             label: item["name"] as String, value: item["id"].toString()))
@@ -80,7 +126,7 @@ class BovineSqlLiteDao implements BovineRepository {
   Future<void> create(Bovine bovine) async {
     final connection = await sqlLiteInstance;
     final newBovine = bovine.toJson();
-    newBovine["for_synchronize"] = true;
+    newBovine["for_synchronize"] = 1;
     newBovine.remove("id");
     newBovine.remove("created_at");
     await connection.insert('bovines', newBovine);
@@ -108,17 +154,6 @@ class BovineSqlLiteDao implements BovineRepository {
     await connection.delete('bovines', where: 'id = ?', whereArgs: [bovine.id]);
   }
 
-  @override
-  Future<Bovine?> findOneByName(String name) async {
-    final connection = await sqlLiteInstance;
-    final data =
-        await connection.query('bovines', where: 'name = ?', whereArgs: [name]);
-
-    if (data.length == 0) {
-      return null;
-    }
-    return Bovine.fromJson(data[0]);
-  }
 
   Future<void> truncate() async {
     final connection = await sqlLiteInstance;

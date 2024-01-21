@@ -1,5 +1,7 @@
+import 'package:app_ganado_finca/src/application/domain/dtos/ResumeGeneric.dart';
 import 'package:app_ganado_finca/src/application/domain/interfaces/ResumeRepository.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/adapter/sqliteAdapter.dart';
+import 'package:app_ganado_finca/src/infraestructure/db/queries/views.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 
 class ResumeSqlLiteDao implements ResumeRepository {
@@ -51,5 +53,19 @@ class ResumeSqlLiteDao implements ResumeRepository {
       INNER JOIN bovines_output ON bovines_output.bovine_id = bovines.id;''';
     final result = await connection.rawQuery(query);
     return result.first["total"] as int;
+  }
+
+  @override
+  Future<List<ResumeGeneric>> totalMoneyAll() async {
+    final connection = await sqlLiteInstance;
+    final results = await connection.rawQuery(viewResumeAllMoney);
+    return results.map((row) => ResumeGeneric.fromJson(row)).toList();
+  }
+
+  @override
+  Future<List<ResumeGeneric>> totalMoneyByOwner() async {
+    final connection = await sqlLiteInstance;
+    final results = await connection.rawQuery(viewResumeByOwner);
+    return results.map((row) => ResumeGeneric.fromJson(row)).toList();
   }
 }

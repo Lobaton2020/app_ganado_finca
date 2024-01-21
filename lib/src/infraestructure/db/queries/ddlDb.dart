@@ -36,10 +36,10 @@ CREATE TABLE bovines_output (
     id INTEGER PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     was_sold BOOLEAN NOT NULL,
-    evidence_photo TEXT,
     sold_amount REAL,
     description TEXT,
     bovine_id INTEGER NOT NULL,
+    for_synchronize BOOLEAN NULL,
     FOREIGN KEY (bovine_id) REFERENCES bovines(id)
 );
 ''';

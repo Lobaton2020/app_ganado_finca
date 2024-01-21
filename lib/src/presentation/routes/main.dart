@@ -9,7 +9,7 @@ const bovineAddRoute = "/bovine/add";
 const bovineDetailsRoute = "/bovine/details";
 const detailScreen = "/image/detail";
 const editBovine = "/bovine/edit";
-const addBovineOutput = "/bovine//output/add";
+const addBovineOutput = "/bovine/output/add";
 
 final appRoutes = {
   bovineDetailsRoute: (BuildContext context) => BovineDetailPage(),
