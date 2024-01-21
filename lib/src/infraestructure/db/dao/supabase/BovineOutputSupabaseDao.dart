@@ -49,4 +49,11 @@ class BovineOutputSupabaseDao extends BovineOutputRepository {
     await Supabase.instance.client.from("bovines_output").delete().eq("id", id);
     await _bovineOutputSqlLiteDao.remove(id);
   }
+
+  @override
+  Future<int> count() async {
+    return await Supabase.instance.client
+        .from('bovines_output')
+        .count(CountOption.exact);
+  }
 }

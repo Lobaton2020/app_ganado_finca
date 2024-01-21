@@ -1,6 +1,7 @@
 import 'package:app_ganado_finca/src/application/domain/dtos/ResumeGeneric.dart';
 import 'package:app_ganado_finca/src/application/domain/interfaces/ResumeRepository.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/adapter/sqliteAdapter.dart';
+import 'package:app_ganado_finca/src/infraestructure/db/dao/sqlite/BovineSqlLiteDao.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/queries/views.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 
@@ -9,14 +10,17 @@ class ResumeSqlLiteDao implements ResumeRepository {
   Future<List<IOption>> totalGroupedByOwner() async {
     final connection = await DatabaseHelper.getInstance();
     final query = '''
-        SELECT
-          owners.name,
-          COUNT(*) AS total
-        FROM bovines
-        LEFT JOIN bovines_output ON bovines_output.bovine_id = bovines.id
-        LEFT JOIN owners ON owners.id = bovines.owner_id
-        WHERE bovines_output.id IS NULL
-        GROUP BY owners.name;
+      select
+        owners."name",
+        count(*) as total
+      from
+        bovines
+        left join bovines_output on bovines_output.bovine_id = bovines.id
+        inner join owners on owners.id = bovines.owner_id
+      where
+        bovines_output.id is null
+      group by
+        owners.name;
 ''';
     final results = await connection.rawQuery(query);
     return results
@@ -59,7 +63,6 @@ class ResumeSqlLiteDao implements ResumeRepository {
   Future<List<ResumeGeneric>> totalMoneyAll() async {
     final connection = await DatabaseHelper.getInstance();
     final results = await connection.rawQuery(viewResumeAllMoney);
-    print(results);
     return results.map((row) => ResumeGeneric.fromJson(row)).toList();
   }
 

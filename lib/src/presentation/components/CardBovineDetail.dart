@@ -70,7 +70,10 @@ class _CardBovineDetailState extends State<CardBovineDetail> {
       print("Error consulta owners or provenances: " + error);
     });
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final tiempo =

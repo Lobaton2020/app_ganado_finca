@@ -9,7 +9,6 @@ class ResumeSupabaseDao implements ResumeRepository {
   Future<List<IOption>> totalGroupedByOwner() async {
     final results =
         await Supabase.instance.client.from('counts_by_owner_view').select();
-    print(results);
     return results
         .map((row) =>
             IOption(label: row['name'], value: row['total'].toString()))

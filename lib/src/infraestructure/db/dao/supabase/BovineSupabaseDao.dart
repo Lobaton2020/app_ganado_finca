@@ -71,4 +71,11 @@ class BovineSupabaseDao implements BovineRepository {
     await Supabase.instance.client.from('bovines').insert(newBovine);
     await _bovineSqlLiteDao.create(bovine);
   }
+
+  @override
+  Future<int> count() async {
+    return await Supabase.instance.client
+        .from('bovines')
+        .count(CountOption.exact);
+  }
 }

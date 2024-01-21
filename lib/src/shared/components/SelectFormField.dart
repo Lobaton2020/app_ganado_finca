@@ -27,7 +27,10 @@ class _SelectFormFieldState extends State<SelectFormField> {
       widget.onChange!(newOption);
     }
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(

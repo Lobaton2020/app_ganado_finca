@@ -15,6 +15,36 @@ class SynchronizeService {
   final _storageLocalDao = StorageLocalService();
   final _storageSupabaseDao = StorageSupabaseService();
   main() {}
+  Future<void> removeLocalData() async {
+    await _bovineSqlLiteDao.truncate();
+    await _bovineOutputSqlLiteDao.truncate();
+  }
+
+  Future<bool> pullInCaseRemoteChanged() async {
+    final r1 = await pullInCaseRemoteChangedBovinesOutput();
+    final r2 = await pullInCaseRemoteChangedBovines();
+    return r1 || r2;
+  }
+
+  Future<bool> pullInCaseRemoteChangedBovines() async {
+    final cloudCount = await _bovineSupabaseDao.count();
+    final localCount = await _bovineSqlLiteDao.count();
+    if (cloudCount != localCount) {
+      await pullBovinesData();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> pullInCaseRemoteChangedBovinesOutput() async {
+    final cloudCount = await _bovineOutputSupabaseDao.count();
+    final localCount = await _bovineOutputSqlLiteDao.count();
+    if (cloudCount != localCount) {
+      await pullBovinesOutputData();
+      return true;
+    }
+    return false;
+  }
 
   Future<int> synchronizeOutputs() async {
     final data = await _bovineOutputSqlLiteDao.findAllForSynchronize();

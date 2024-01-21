@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_ganado_finca/src/application/domain/models/BovineOutput.dart';
 import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/presentation/components/CardBovineOutput.dart';
@@ -14,6 +16,8 @@ class BovinesOutputPage extends StatefulWidget {
 class _BovinesOutputPage extends State<BovinesOutputPage> {
   List<BovineOutput> listOutputBovines = [];
   bool loading = false;
+  StreamSubscription? tabSubscription;
+  StreamSubscription? internetStateSubscription;
   @override
   void initState() {
     super.initState();
@@ -26,7 +30,7 @@ class _BovinesOutputPage extends State<BovinesOutputPage> {
         loading = false;
       });
     });
-    tabObserver.stream.listen((event) {
+    tabSubscription = tabObserver.stream.listen((event) {
       print("Event" + event.toString());
       if (AppTabs.outputs.index == event) {
         loading = true;
@@ -39,8 +43,9 @@ class _BovinesOutputPage extends State<BovinesOutputPage> {
       }
     });
 
-    internetState.listen((value) {
-      if (value == InternetState.connected) {
+    internetStateSubscription = internetState.listen((value) {
+      if (value == InternetState.connected &&
+          tabObserver.stream.value == AppTabs.outputs.index) {
         loading = true;
         print("RELOADING STATE OUTPUT, CONNECTED #######################");
         bovineOutputService.findAll().then((value) {
@@ -52,7 +57,12 @@ class _BovinesOutputPage extends State<BovinesOutputPage> {
       }
     });
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+    tabSubscription?.cancel();
+    internetStateSubscription?.cancel();
+  }
   void onRemoveBovineOutput(int id) {
     loading = true;
     bovineOutputService.remove(id).then((value) {

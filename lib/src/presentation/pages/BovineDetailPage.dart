@@ -28,6 +28,10 @@ class _BovineDetailPage extends State<BovineDetailPage> {
         color: Colors.white,
       );
     }
+    @override
+    void dispose() {
+      super.dispose();
+    }
     return Container(
       child: CardBovineDetail(
           bovine: bovineParam.runtimeType.toString() == "String"

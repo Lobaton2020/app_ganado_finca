@@ -42,7 +42,6 @@ class _FormCreateOutputBovineFormState extends State<FormCreateOutputBovine> {
         newOutputBovine.remove("sold_amount");
       }
       try {
-        print("##################################");
         await bovineOutputService
             .create(BovineOutput.fromJson(newOutputBovine));
         showSnackBar(context, "Se creó la salida!");
@@ -63,7 +62,10 @@ class _FormCreateOutputBovineFormState extends State<FormCreateOutputBovine> {
       mustShowAmount = was_sold == "1";
     });
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Form(

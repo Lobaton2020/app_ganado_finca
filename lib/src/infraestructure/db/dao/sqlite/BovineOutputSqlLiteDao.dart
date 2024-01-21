@@ -78,8 +78,6 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
       final newItem = Map<String, dynamic>.from(item);
       newItem["sold_amount"] = int.tryParse(newItem["sold_amount"].toString());
       newItem["was_sold"] = newItem["was_sold"] == 1;
-
-      print(newItem);
       return BovineOutput.fromJson(newItem);
     }).toList();
     return newData;
@@ -131,5 +129,13 @@ class BovineOutputSqlLiteDao extends BovineOutputRepository {
   Future<void> truncate() async {
     final connection = await DatabaseHelper.getInstance();
     await connection.delete('bovines_output', where: '1 = 1');
+  }
+
+  @override
+  Future<int> count() async {
+    final connection = await DatabaseHelper.getInstance();
+    final result = await connection
+        .rawQuery("SELECT count(*) as count from bovines_output");
+    return result.first["count"] as int;
   }
 }

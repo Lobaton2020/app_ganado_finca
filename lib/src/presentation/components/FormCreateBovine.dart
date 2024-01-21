@@ -115,7 +115,10 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
       print("Error consulta owners or provenances: " + error);
     });
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Form(

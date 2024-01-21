@@ -1,8 +1,10 @@
 
 import 'package:app_ganado_finca/src/application/domain/interfaces/BovineRepository.dart';
 import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
+import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/adapter/sqliteAdapter.dart';
 import 'package:app_ganado_finca/src/infraestructure/db/queries/views.dart';
+import 'package:app_ganado_finca/src/infraestructure/storage/repository/StorageLocalService.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -105,7 +107,6 @@ class BovineSqlLiteDao implements BovineRepository {
       where
         bovines_output.id is null;
 ''');
-    print(data);
     return data
         .map((item) => IOption(
             label: item["name"] as String, value: item["id"].toString()))
@@ -157,6 +158,20 @@ class BovineSqlLiteDao implements BovineRepository {
 
   Future<void> truncate() async {
     final connection = await DatabaseHelper.getInstance();
+    final localPhotos = await connection.rawQuery(
+        "SELECT photo from bovines where bovines.photo not like('https://%') and bovines.photo is not null;");
+    final localStorageService = StorageLocalService();
+    await Future.wait(localPhotos
+            .map((e) => localStorageService.removeFile(e["photo"] as String)))
+        .catchError(print);
     await connection.delete('bovines', where: '1 = 1');
+  }
+
+  @override
+  Future<int> count() async {
+    final connection = await DatabaseHelper.getInstance();
+    final result =
+        await connection.rawQuery("SELECT count(*) as count from bovines");
+    return result.first["count"] as int;
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 
 import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
@@ -18,6 +19,8 @@ class BovinesPage extends StatefulWidget {
 class _BovinesPage extends State<BovinesPage> {
   List<Bovine> listBovines = [];
   bool loading = false;
+  StreamSubscription? tabSubscription;
+  StreamSubscription? internetStateSubscription;
   @override
   void initState() {
     super.initState();
@@ -30,7 +33,7 @@ class _BovinesPage extends State<BovinesPage> {
         loading = false;
       });
     });
-    tabObserver.stream.listen((event) {
+    tabSubscription = tabObserver.stream.listen((event) {
       print("Event" + event.toString());
       if (AppTabs.bovines.index == event) {
         loading = true;
@@ -43,8 +46,9 @@ class _BovinesPage extends State<BovinesPage> {
       }
     });
 
-     internetState.listen((value) {
-      if (value == InternetState.connected) {
+    internetStateSubscription = internetState.listen((value) {
+      if (value == InternetState.connected &&
+          tabObserver.stream.value == AppTabs.bovines.index) {
         loading = true;
         print("RELOADING STATE, CONNECTED #######################");
         bovineService.findAll().then((value) {
@@ -56,17 +60,24 @@ class _BovinesPage extends State<BovinesPage> {
       }
     });
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+    tabSubscription?.cancel();
+    internetStateSubscription?.cancel();
+  }
   @override
   Widget build(BuildContext context) {
     if (loading) {
       return CircularProgressIndicator();
     }
-    if (listBovines.length == 0) {
-      return Center(child: Text("No hay informacion"));
-    }
     final List<Widget> listRender = listBovines.length == 0
-        ? [Center(child: Text("No hay informacion"))]
+        ? [
+            Padding(
+              padding: EdgeInsets.only(top: 300),
+              child: Center(child: Text("No hay informacion")),
+            )
+          ]
         : listBovines
             .map((bovine) =>
                 CardBovine(bovine: bovine, total: listBovines.length))

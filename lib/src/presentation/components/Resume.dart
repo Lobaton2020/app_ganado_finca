@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:app_ganado_finca/src/application/domain/dtos/ResumeGeneric.dart';
 import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 import 'package:app_ganado_finca/src/shared/utils/formatCurrency.dart';
+import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:flutter/material.dart';
 
 class ResumeBovine extends StatefulWidget {
@@ -14,20 +17,18 @@ class ResumeBovine extends StatefulWidget {
 
 class ResumeBovineFormState extends State<ResumeBovine> {
   bool isLoading = false;
+  StreamSubscription? tabSubscription;
+  StreamSubscription? internetStateSubscription;
   final resume = Map<String, dynamic>.from({
     "totalMoneyAll": {
       "salida": ResumeGeneric(count: 0, sum: 0, type: ""),
       "actual": ResumeGeneric(count: 0, sum: 0, type: "")
     },
-    "totalMoneyByOwner": {"salida": [], "actual": []}
+    "totalMoneyByOwner": {"salida": [], "actual": []},
+    "totalSalidas": 0,
+    "totalGroupedByOwner": []
   });
-
-  @override
-  void initState() {
-    setState(() {
-      isLoading = true;
-    });
-    super.initState();
+  void loadWidgetData() {
     Future.wait([
       resumeRepository.totalHembras(),
       resumeRepository.totalMachos(),
@@ -62,6 +63,35 @@ class ResumeBovineFormState extends State<ResumeBovine> {
         isLoading = true;
       });
     });
+  }
+
+  @override
+  void initState() {
+    setState(() {
+      isLoading = true;
+    });
+    loadWidgetData();
+    super.initState();
+    tabSubscription = tabObserver.stream.listen((event) {
+      print("Event" + event.toString());
+      if (AppTabs.main.index == event) {
+        loadWidgetData();
+      }
+    });
+
+    internetStateSubscription = internetState.listen((value) {
+      if (value == InternetState.connected &&
+          tabObserver.stream.value == AppTabs.main.index) {
+        loadWidgetData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    tabSubscription?.cancel();
+    internetStateSubscription?.cancel();
   }
   Card loadMoneyCard(String label, String value, commonTextStyle) {
     return Card(
@@ -151,6 +181,18 @@ class ResumeBovineFormState extends State<ResumeBovine> {
           value: formatearMonedaCOP(resume["totalMoneyAll"]["salida"]!.sum)),
 
     ];
+    final EmptyCard = Card(
+      child: Center(
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(5),
+              child: Text("No hay data"),
+            )
+          ],
+        ),
+      ),
+    );
     return Container(
       child: isLoading
           ? CircularProgressIndicator()
@@ -166,29 +208,35 @@ class ResumeBovineFormState extends State<ResumeBovine> {
                           style: TextStyle(fontSize: 15),
                         )),
                   ),
-                  ...cards
+                  ...(cards.length != 0
+                      ? cards
                       .map((e) => loadRowCard(
                           e.label, e.value.toString(), commonTextStyle))
-                      .toList(),
+                          .toList()
+                      : [EmptyCard]),
                   Container(
                     child: ListTile(
                         title: Text("Numero animales por propietario"),
                         leading: Icon(Icons.analytics)),
                   ),
-                  ...resume["totalGroupedByOwner"]
+                  ...(resume["totalGroupedByOwner"].length != 0
+                      ? resume["totalGroupedByOwner"]
                       .map((e) => loadRowCard(
                           "de ${e.label}", e.value.toString(), commonTextStyle))
-                      .toList(),
+                          .toList()
+                      : [EmptyCard]),
                   Container(
                     child: ListTile(
                       title: Text("Resumen monetario"),
                       leading: Icon(Icons.money),
                     ),
                   ),
-                  ...moneyResume
+                  ...(moneyResume.length != 0
+                      ? moneyResume
                       .map((e) => loadMoneyCard(
                           e.label, e.value.toString(), commonTextStyle))
-                      .toList(),
+                          .toList()
+                      : [EmptyCard]),
                   Container(
                     child: ListTile(
                       title:
@@ -196,20 +244,28 @@ class ResumeBovineFormState extends State<ResumeBovine> {
                       leading: Icon(Icons.money),
                     ),
                   ),
-                  ...resume["totalMoneyByOwner"]["salida"]
+                  ...(resume["totalMoneyByOwner"]["salida"].length != 0
+                      ? resume["totalMoneyByOwner"]["salida"]
                       .map((e) => loadMoneyCardCustom(
-                          e.name, formatearMonedaCOP(e.sum), commonTextStyle))
-                      .toList(),
+                              "${e.name}(${e.count})",
+                              formatearMonedaCOP(e.sum),
+                              commonTextStyle))
+                          .toList()
+                      : [EmptyCard]),
                   Container(
                     child: ListTile(
                       title: Text("Dinero actual total por propietario"),
                       leading: Icon(Icons.money),
                     ),
                   ),
-                  ...resume["totalMoneyByOwner"]["actual"]
+                  ...(resume["totalMoneyByOwner"]["actual"].length != 0
+                      ? resume["totalMoneyByOwner"]["actual"]
                       .map((e) => loadMoneyCardCustom(
-                          e.name, formatearMonedaCOP(e.sum), commonTextStyle))
-                      .toList(),
+                              "${e.name}(${e.count})",
+                              formatearMonedaCOP(e.sum),
+                              commonTextStyle))
+                          .toList()
+                      : [EmptyCard]),
               ],
             ),
             ),

@@ -20,6 +20,55 @@ class TabBarApp extends StatefulWidget {
 
 class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
   late final TabController _tabController;
+  StreamSubscription? tabSubscription;
+  Future<void> cleanLocalData() async {
+    await synchronizeService.removeLocalData();
+    showSnackBar(context, 'Proceso hecho con exito');
+    tabObserver.add(tabObserver.stream.value);
+  }
+
+  String ln(String str) {
+    return str.length != 0 ? '\n' : '';
+  }
+
+  Future<void> sincronizarInformacion() async {
+    if (internetState.stream.value == InternetState.disconnected) {
+      showSnackBar(context, 'Debes conectarte a internet');
+      return;
+    }
+    showSnackBar(context, "Sincronizando...");
+    var message = "";
+    await synchronizeService.synchronizeBovines().then((value) {
+      if (value > 0) {
+        message += "Actualizamos $value bovinos en la nube";
+      }
+    }).catchError((err) {
+      print("Error1: $err");
+      showSnackBar(context, "Error de sincronizacion, data corrupta");
+    });
+    await synchronizeService.synchronizeOutputs().then((value) {
+      if (value > 0) {
+        message +=
+            "${ln(message)}Actualizamos $value salidas de bovinos en la nube";
+      }
+    }).catchError((err) {
+      print("Error2: $err");
+      showSnackBar(context, "Error de sincronizacion, data corrupta");
+    });
+    await synchronizeService.pullInCaseRemoteChanged().then((value) {
+      if (value) {
+        message += "${ln(message)}Sincronizamos la base de datos local";
+      }
+    }).catchError((err) {
+      showSnackBar(context, "Fi: $err");
+    });
+    if (message.length == 0) {
+      showSnackBar(context, "Sincronización exitosa");
+    } else {
+      showSnackBar(context, message);
+    }
+    tabObserver.add(tabObserver.stream.value);
+  }
 
   @override
   void initState() {
@@ -29,28 +78,10 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
       (InternetConnectionStatus status) async {
         switch (status) {
           case InternetConnectionStatus.connected:
-            showSnackBar(
-                context, "Conectado a internet, revisando sincronizacion..");
+            showSnackBar(context, "Conectado a internet");
             internetState.add(InternetState.connected);
-
-            await synchronizeService.synchronizeBovines().then((value) {
-              if (value > 0) {
-                showSnackBar(
-                    context, "Actualizamos $value bovinos en la nube!");
-              }
-            }).catchError((err) {
-              print("Error1: $err");
-              showSnackBar(context, "Error de sincronizacion, data corrupta!");
-            });
-            await synchronizeService.synchronizeOutputs().then((value) {
-              if (value > 0) {
-                showSnackBar(context,
-                    "Actualizamos $value salidas de bovinos en la nube!");
-              }
-            }).catchError((err) {
-              print("Error2: $err");
-              showSnackBar(context, "Error de sincronizacion, data corrupta!");
-            });
+            await Future.delayed(Duration(seconds: 3))
+                .then((value) => sincronizarInformacion());
             break;
           case InternetConnectionStatus.disconnected:
             showSnackBar(context, "Se fue el internet");
@@ -60,7 +91,7 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
         }
       },
     );
-    tabObserver.listen((value) {
+    tabSubscription = tabObserver.listen((value) {
       _tabController.animateTo(value);
     });
   }
@@ -69,13 +100,19 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
   void dispose() {
     _tabController.dispose();
     super.dispose();
+    tabSubscription?.cancel();
   }
   Future<void> sincronizeAction() async {
     try {
-      showSnackBar(context, 'Sincronizando...');
+      if (internetState.stream.value == InternetState.disconnected) {
+        showSnackBar(context, 'Debes conectarte a internet');
+        return;
+      }
+      showSnackBar(context, 'Actualizando base de datos local...');
       await synchronizeService.pullBovinesData();
       await synchronizeService.pullBovinesOutputData();
-      showSnackBar(context, 'Sincronizado exitoso!');
+      showSnackBar(context, 'Actualización exitosa');
+      tabObserver.add(tabObserver.stream.value);
     } catch (err) {
       showSnackBar(context, "Err: $err");
     }
@@ -89,16 +126,30 @@ class _TabBarAppState extends State<TabBarApp> with TickerProviderStateMixin {
           PopupMenuButton<String>(
             onSelected: (value) async {
               switch (value) {
-                case 'Synchrozine':
+                case 'pull':
                   await sincronizeAction();
+                  break;
+                case 'synchronize':
+                  await sincronizarInformacion();
+                  break;
+                case 'clean':
+                  await cleanLocalData();
                   break;
                 default:
               }
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
-                value: 'Synchrozine',
-                child: Text('Reset data local'),
+                value: 'synchronize',
+                child: Text('Sincronizar'),
+              ),
+              const PopupMenuItem(
+                value: 'pull',
+                child: Text('Obtener cambios'),
+              ),
+              const PopupMenuItem(
+                value: 'clean',
+                child: Text('Limpiar data local'),
               ),
             ],
             icon: const Icon(Icons.person),

@@ -19,8 +19,7 @@ void onCreateLocalDB(Database db, int version) async {
   // Default inserts
   await db.execute(dmlTableProvenance);
   await db.execute(dmlTableOwners);
-  await synchronizeService.pullBovinesData();
-  await synchronizeService.pullBovinesData();
+
 }
 
 class DatabaseHelper {

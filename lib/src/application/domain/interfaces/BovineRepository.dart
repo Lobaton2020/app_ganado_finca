@@ -8,4 +8,5 @@ abstract class BovineRepository {
   Future<List<IOption>> findOwners();
   Future<void> create(Bovine bovine);
   Future<Bovine?> findOneByName(String newBovine);
+  Future<int> count();
 }

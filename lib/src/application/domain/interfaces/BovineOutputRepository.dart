@@ -6,4 +6,6 @@ abstract class BovineOutputRepository {
   Future<void> create(BovineOutput bovineOutput);
   Future<void> remove(int id);
   Future<Bovine?> findOneByName(String name);
+  Future<int> count();
+
 }
