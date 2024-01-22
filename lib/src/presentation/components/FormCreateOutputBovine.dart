@@ -1,5 +1,6 @@
 import 'package:app_ganado_finca/src/application/domain/models/BovineOutput.dart';
 import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
+import 'package:app_ganado_finca/src/shared/components/CurrencyFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/SelectFormField.dart';
 import 'package:app_ganado_finca/src/shared/models/IOptions.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
@@ -37,7 +38,7 @@ class _FormCreateOutputBovineFormState extends State<FormCreateOutputBovine> {
       newOutputBovine["bovine_id"] = widget.bovine_id;
       if (newOutputBovine["was_sold"]) {
         newOutputBovine["sold_amount"] =
-            num.parse("${newOutputBovine["sold_amount"]}");
+            int.parse("${newOutputBovine["sold_amount"]!.split(".").first}");
       } else {
         newOutputBovine.remove("sold_amount");
       }
@@ -87,26 +88,14 @@ class _FormCreateOutputBovineFormState extends State<FormCreateOutputBovine> {
                 ]),
           ),
           mustShowAmount
-              ? Padding(
+              ? Container(
                   padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                  child: CurrencyFormField(
                       labelText: 'Monto de venta',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Este campo es requerido';
-                      }
-                      if (num.tryParse(value) == null) {
-                        return 'Este campo debe ser numerico';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) =>
-                        {newOutputBovine["sold_amount"] = value ?? ''},
-                  ),
-                )
+                      isRequired: true,
+                      onSaved: (value) {
+                        newOutputBovine["sold_amount"] = value;
+                      }))
               : Container(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),

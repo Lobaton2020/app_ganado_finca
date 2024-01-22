@@ -1,6 +1,7 @@
 import 'package:app_ganado_finca/src/application/domain/models/Bovine.dart';
 import 'package:app_ganado_finca/src/application/services/getDaoInstanceDependsNetwork.dart';
 import 'package:app_ganado_finca/src/shared/components/AutocompleteSingleFormField.dart';
+import 'package:app_ganado_finca/src/shared/components/CurrencyFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/DateFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/ImageFormField.dart';
 import 'package:app_ganado_finca/src/shared/components/SelectFormField.dart';
@@ -9,7 +10,9 @@ import 'package:app_ganado_finca/src/shared/utils/fromDateString.dart';
 import 'package:app_ganado_finca/src/shared/utils/rxjs.dart';
 import 'package:app_ganado_finca/src/shared/utils/snackBartMessage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 const provenanceId = {
   "Comprado": "1",
@@ -57,7 +60,7 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
       if (newBovine.containsKey("mother_id")) {
         newBovine["mother_id"] = int.parse(newBovine["mother_id"]);
       }
-      if (newBovine["provenance_id"]!.toString() == provenanceId["Comprado"]) {
+      if (newBovine["adquisition_amount"]!.toString().length != 0) {
         newBovine["adquisition_amount"] =
             num.parse("${newBovine["adquisition_amount"]}");
       } else {
@@ -193,28 +196,14 @@ class FormCreateBovineFormState extends State<FormCreateBovine> {
                 onSaved: (value) => {newBovine["provenance_id"] = value ?? ''},
                 options: provenanceOptions),
           ),
-          mustShowAmount
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Monto de compra',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Este campo es requerido';
-                      }
-                      if (num.tryParse(value) == null) {
-                        return 'Este campo debe ser numerico';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) =>
-                        {newBovine["adquisition_amount"] = value ?? ''},
-                  ),
-                )
-              : Container(),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: CurrencyFormField(
+              onSaved: (value) {
+                newBovine["adquisition_amount"] = value;
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: SelectFormField(
